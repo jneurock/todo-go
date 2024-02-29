@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"time"
 
 	domain "github.com/jneurock/todo-go/internal/domain"
 
@@ -42,10 +41,8 @@ func NewTodoPostsgresStore(sslmode string) (*TodoPostgresStore, error) {
 func (r *TodoPostgresStore) init() error {
 	query := `CREATE TABLE IF NOT EXISTS todo (
 		id serial primary key,
-		complete boolean,
-		description text,
-		created_at timestamp,
-		updated_at timestamp
+		completed boolean,
+		title text
 	)`
 
 	_, err := r.db.Exec(query)
@@ -54,17 +51,12 @@ func (r *TodoPostgresStore) init() error {
 }
 
 func (r *TodoPostgresStore) Create(attrs TodoAttrs) (*domain.Todo, error) {
-	query := `INSERT INTO todo
-		(complete, description, created_at, updated_at)
-		values ($1, $2, $3, $4)
-	`
+	query := `INSERT INTO todo (complete, title) values ($1, $2)`
 
 	rows, err := r.db.Query(
 		query,
-		attrs.Complete,
-		attrs.Description,
-		time.Now(),
-		time.Now(),
+		attrs.Completed,
+		attrs.Title,
 	)
 
 	if err != nil {
@@ -123,12 +115,9 @@ func (r *TodoPostgresStore) FindAll() ([]*domain.Todo, error) {
 }
 
 func (r *TodoPostgresStore) Update(todo *domain.Todo) error {
-	query := `UPDATE todo
-		SET complete = $1, description = $2, updated_at = $3
-		WHERE id = $4
-	`
+	query := `UPDATE todo SET completed = $1, title = $2 WHERE id = $3`
 
-	_, err := r.db.Exec(query, todo.Complete, todo.Description, time.Now(), todo.ID)
+	_, err := r.db.Exec(query, todo.Completed, todo.Title, todo.ID)
 
 	return err
 }
@@ -138,10 +127,8 @@ func scanIntoTodo(rows *sql.Rows) (*domain.Todo, error) {
 
 	err := rows.Scan(
 		&todo.ID,
-		&todo.Complete,
-		&todo.Description,
-		&todo.CreatedAt,
-		&todo.UpdatedAt,
+		&todo.Completed,
+		&todo.Title,
 	)
 
 	return todo, err

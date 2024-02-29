@@ -5,8 +5,8 @@ import (
 )
 
 type TodoAttrs struct {
-	Complete    bool
-	Description string
+	Completed bool
+	Title     string
 }
 
 type TodoStore interface {
