@@ -51,7 +51,7 @@ func (r *TodoPostgresStore) init() error {
 }
 
 func (r *TodoPostgresStore) Create(attrs TodoAttrs) (*domain.Todo, error) {
-	query := `INSERT INTO todo (complete, title) values ($1, $2)`
+	query := `INSERT INTO todo (completed, title) values ($1, $2)`
 
 	rows, err := r.db.Query(
 		query,
