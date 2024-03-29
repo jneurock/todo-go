@@ -1,12 +1,20 @@
 package main
 
-import "github.com/jneurock/todo-go/internal/web"
+import (
+	"github.com/jneurock/todo-go/internal/service"
+	"github.com/jneurock/todo-go/internal/store"
+	"github.com/jneurock/todo-go/internal/web"
+)
 
 func main() {
 	// TODO: Set up database connection
 	// TODO: Set up app
 
 	templates := web.NewTemplates("internal/web/views")
-	server := web.NewServer(templates)
+
+	todoStore := store.NewInMemoryTodoStore()
+	todoService := service.NewTodoService(todoStore)
+
+	server := web.NewServer(templates, todoService)
 	server.Start()
 }

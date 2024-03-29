@@ -25,7 +25,11 @@
           </div>
         </div>
       </form>
-      <div class="todos"></div>
+      <div class="todos">
+        {{if .Todos}}
+          {{template "newtodo" .Todos}}
+        {{end}}
+      </div>
     </main>
   </body>
 </html>

@@ -1,7 +1,7 @@
-package todo
+package domain
 
 type Todo struct {
-	Completed bool
-	ID        int64
-	Title     string
+	Complete    bool
+	ID          int64
+	Description string
 }

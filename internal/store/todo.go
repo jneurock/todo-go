@@ -1,12 +1,12 @@
-package todo
+package store
 
 import (
 	domain "github.com/jneurock/todo-go/internal/domain"
 )
 
 type TodoAttrs struct {
-	Completed bool
-	Title     string
+	Complete    bool
+	Description string
 }
 
 type TodoStore interface {

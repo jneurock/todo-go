@@ -1,4 +1,4 @@
-package todo
+package store
 
 import (
 	"database/sql"
@@ -55,8 +55,8 @@ func (r *TodoPostgresStore) Create(attrs TodoAttrs) (*domain.Todo, error) {
 
 	rows, err := r.db.Query(
 		query,
-		attrs.Completed,
-		attrs.Title,
+		attrs.Complete,
+		attrs.Description,
 	)
 
 	if err != nil {
@@ -117,7 +117,7 @@ func (r *TodoPostgresStore) FindAll() ([]*domain.Todo, error) {
 func (r *TodoPostgresStore) Update(todo *domain.Todo) error {
 	query := `UPDATE todo SET completed = $1, title = $2 WHERE id = $3`
 
-	_, err := r.db.Exec(query, todo.Completed, todo.Title, todo.ID)
+	_, err := r.db.Exec(query, todo.Complete, todo.Description, todo.ID)
 
 	return err
 }
@@ -127,8 +127,8 @@ func scanIntoTodo(rows *sql.Rows) (*domain.Todo, error) {
 
 	err := rows.Scan(
 		&todo.ID,
-		&todo.Completed,
-		&todo.Title,
+		&todo.Complete,
+		&todo.Description,
 	)
 
 	return todo, err
