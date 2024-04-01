@@ -20,6 +20,10 @@ func (ts *TodoService) Create(description string) (*domain.Todo, error) {
 	})
 }
 
+func (ts *TodoService) Delete(id string) error {
+	return ts.store.Delete(id)
+}
+
 func (ts *TodoService) FindAll() ([]*domain.Todo, error) {
 	return ts.store.FindAll()
 }

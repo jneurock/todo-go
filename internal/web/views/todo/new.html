@@ -1,17 +1,20 @@
-{{block "newtodo" .Todos}}
-  {{range .}}
-    <div class="todo flex">
-      <div>
-        {{.Description}}
-      </div>
-      <div>
-        <label for="complete-{{ .ID }}">Complete?</label>
-        <input
-          name="complete-{{ .ID }}"
-          type="checkbox"
-          {{if .Complete}}checked{{end}}
-        >
-      </div>
-    </div>
-  {{end}}
-{{end}}
+{{block "newtodo" .Todos}} {{range .}}
+<div class="todo">
+  <div>{{.Description}}</div>
+  <div>
+    <input
+      name="complete-{{.ID}}"
+      type="checkbox"
+      {{if
+      .Complete}}checked{{end}}
+    />
+    <button
+      hx-delete="/todo/{{.ID}}"
+      hx-target="closest .todo"
+      hx-swap="outerHTML"
+    >
+      Delete
+    </button>
+  </div>
+</div>
+{{end}} {{end}}
