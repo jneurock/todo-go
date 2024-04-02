@@ -72,6 +72,21 @@ func (s *Server) handleDeleteTodo(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Fprintf(w, "Error: %v", err)
 	}
+
+	todos, err := s.todoService.FindAll()
+
+	if err != nil {
+		fmt.Fprintf(w, "Error: %v", err)
+		return
+	}
+
+	err = t.ExecuteTemplate(w, "todos.html", &struct{ Todos []*domain.Todo }{
+		Todos: todos,
+	})
+
+	if err != nil {
+		fmt.Fprintf(w, "Error: %v", err)
+	}
 }
 
 func (s *Server) handleNewTodo(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +104,7 @@ func (s *Server) handleNewTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = t.ExecuteTemplate(w, "new.html", &struct{ Todos []*domain.Todo }{
+	err = t.ExecuteTemplate(w, "todos.html", &struct{ Todos []*domain.Todo }{
 		Todos: todos,
 	})
 

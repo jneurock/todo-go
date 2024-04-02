@@ -35,9 +35,7 @@
           </div>
         </div>
       </form>
-      <div class="todos">
-        {{if .Todos}} {{template "newtodo" .Todos}} {{end}}
-      </div>
+      {{template "todos" .Todos}}
     </main>
   </body>
 </html>
