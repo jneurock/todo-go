@@ -1,0 +1,60 @@
+{{block "todos" .}}
+  <div id="todos">
+    <form
+      class="todo-form"
+      method="post"
+      action="/todo"
+      hx-post="/todo"
+      hx-target="#todos"
+      hx-on:htmx:after-request="clearTodoForm(this)"
+    >
+      {{if .Error}}
+        <div class="error">
+          Error: {{.Error}}
+        </div>
+      {{end}}
+      <div class="todo-form--label">
+        <label for="description">Description</label>
+      </div>
+      <div class="todo-form--controls">
+        <div>
+          <input
+            class="todo-form--input"
+            name="description"
+            type="text"
+            required
+          >
+        </div>
+        <div>
+          <button class="todo-form--button" type="submit">Create</button>
+        </div>
+      </div>
+    </form>
+    <div class="todo-list">
+      {{range .Todos}}
+        <div class="todo">
+          <div class="todo--attrs">
+            <div>
+              <input
+                name="complete-{{.ID}}"
+                type="checkbox"
+                {{if
+                .Complete}}checked{{end}}
+              />
+            </div>
+            <div class="todo--description">
+              <span>{{.Description}}</span>
+            </div>
+          </div>
+          <div class="todo--controls">
+            <button hx-delete="/todo/{{.ID}}" hx-target="#todos">
+              X
+            </button>
+          </div>
+        </div>
+      {{else}}
+        <p>Add some todos!</p>
+      {{end}}
+    </div>
+  </div>
+{{end}}

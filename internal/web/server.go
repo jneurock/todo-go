@@ -7,19 +7,17 @@ import (
 	"net/http"
 
 	"github.com/jneurock/todo-go/internal/domain"
-	"github.com/jneurock/todo-go/internal/service"
+	"github.com/jneurock/todo-go/internal/store"
 )
 
 var t *template.Template
 
 type Server struct {
-	todoService *service.TodoService
+	store store.TodoStore
 }
 
-func NewServer(todoService *service.TodoService) *Server {
-	return &Server{
-		todoService: todoService,
-	}
+func NewServer(store store.TodoStore) *Server {
+	return &Server{store}
 }
 
 func (s *Server) Start() {
@@ -27,7 +25,7 @@ func (s *Server) Start() {
 	staticFs := http.FileServer(static)
 
 	var err error
-	t, err = template.ParseGlob("internal/web/views/**/*.html")
+	t, err = template.ParseGlob("internal/web/views/*.html")
 
 	if err != nil {
 		panic(err)
@@ -49,14 +47,13 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todos, err := s.todoService.FindAll()
+	todos, err := s.store.FindAll()
 
-	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
-		return
-	}
-
-	err = t.ExecuteTemplate(w, "index.html", &struct{ Todos []*domain.Todo }{
+	err = t.ExecuteTemplate(w, "index.html", &struct {
+		Error error
+		Todos []*domain.Todo
+	}{
+		Error: err,
 		Todos: todos,
 	})
 
@@ -67,20 +64,24 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleDeleteTodo(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	err := s.todoService.Delete(id)
+	err := s.store.Delete(id)
 
 	if err != nil {
 		fmt.Fprintf(w, "Error: %v", err)
 	}
 
-	todos, err := s.todoService.FindAll()
+	todos, err := s.store.FindAll()
 
 	if err != nil {
 		fmt.Fprintf(w, "Error: %v", err)
 		return
 	}
 
-	err = t.ExecuteTemplate(w, "todos.html", &struct{ Todos []*domain.Todo }{
+	err = t.ExecuteTemplate(w, "todos", &struct {
+		Error error
+		Todos []*domain.Todo
+	}{
+		Error: err,
 		Todos: todos,
 	})
 
@@ -89,22 +90,44 @@ func (s *Server) handleDeleteTodo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// TODO: Improve the error handling here
 func (s *Server) handleNewTodo(w http.ResponseWriter, r *http.Request) {
-	_, err := s.todoService.Create(r.FormValue("description"))
+	todo, err := domain.NewTodo(r.FormValue("description"), false)
 
 	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
+		todos, errFindTodos := s.store.FindAll()
+
+		if errFindTodos != nil {
+			renderTodos(w, todos, errFindTodos)
+			return
+		}
+
+		renderTodos(w, todos, err)
 		return
 	}
 
-	todos, err := s.todoService.FindAll()
+	err = s.store.Create(todo)
+	todos, errFindTodos := s.store.FindAll()
 
 	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
+		if errFindTodos != nil {
+			renderTodos(w, todos, errFindTodos)
+			return
+		}
+
+		renderTodos(w, todos, err)
 		return
 	}
 
-	err = t.ExecuteTemplate(w, "todos.html", &struct{ Todos []*domain.Todo }{
+	renderTodos(w, todos, nil)
+}
+
+func renderTodos(w http.ResponseWriter, todos []*domain.Todo, err error) {
+	err = t.ExecuteTemplate(w, "todos", &struct {
+		Error error
+		Todos []*domain.Todo
+	}{
+		Error: err,
 		Todos: todos,
 	})
 

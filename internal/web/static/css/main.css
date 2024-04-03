@@ -14,8 +14,12 @@ body {
   max-width: 48rem;
 }
 
-.flex {
-  display: flex;
+.error {
+  background-color: #f8d7da;
+  border: 1px solid #f1aeb5;
+  color: #58151c;
+  margin-bottom: 2rem;
+  padding: 1rem;
 }
 
 .todo {

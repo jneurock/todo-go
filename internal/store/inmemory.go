@@ -57,17 +57,13 @@ func NewInMemoryTodoStore() *InMemoryTodoStore {
 	return &InMemoryTodoStore{}
 }
 
-func (s *InMemoryTodoStore) Create(attrs TodoAttrs) (*domain.Todo, error) {
-	todo := &domain.Todo{
-		Description: attrs.Description,
-		ID:          lastID + 1,
-	}
-
+func (s *InMemoryTodoStore) Create(todo *domain.Todo) error {
+	todo.ID = lastID + 1
 	lastID = todo.ID
 
 	s.todos.Add(todo)
 
-	return todo, nil
+	return nil
 }
 
 func (s *InMemoryTodoStore) Delete(id string) error {
@@ -82,10 +78,6 @@ func (s *InMemoryTodoStore) Delete(id string) error {
 	return nil
 }
 
-func (s *InMemoryTodoStore) Find(id string) (*domain.Todo, error) {
-	return nil, nil
-}
-
 func (s *InMemoryTodoStore) FindAll() ([]*domain.Todo, error) {
 	var todos []*domain.Todo
 	todo := s.todos.head
@@ -98,6 +90,6 @@ func (s *InMemoryTodoStore) FindAll() ([]*domain.Todo, error) {
 	return todos, nil
 }
 
-func (s *InMemoryTodoStore) Update(id string, attrs TodoAttrs) error {
+func (s *InMemoryTodoStore) Update(id string, todo *domain.Todo) error {
 	return nil
 }
