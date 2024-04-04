@@ -6,4 +6,4 @@ Feel free to follow along while I make progress. There will be plenty of mistake
 
 Goals:
 * Practice writing a real-world app with Go
-* Practice using a hexagonal architecture
+* Practice using HTMX
