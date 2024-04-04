@@ -2,8 +2,6 @@
   <div id="todos">
     <form
       class="todo-form"
-      method="post"
-      action="/todo"
       hx-post="/todo"
       hx-swap="outerHTML"
       hx-target="#todos"
@@ -22,6 +20,7 @@
             class="todo-form--input"
             name="description"
             type="text"
+            autofocus
             required
           >
         </div>
