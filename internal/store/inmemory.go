@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"strconv"
 
 	domain "github.com/jneurock/todo-go/internal/domain"
@@ -90,6 +91,19 @@ func (s *InMemoryTodoStore) FindAll() ([]*domain.Todo, error) {
 	return todos, nil
 }
 
-func (s *InMemoryTodoStore) Update(id string, todo *domain.Todo) error {
-	return nil
+func (s *InMemoryTodoStore) Update(updatedTodo *domain.Todo) error {
+	todo := s.todos.head
+
+	for todo != nil {
+		if todo.value.ID == updatedTodo.ID {
+			todo.value.Complete = updatedTodo.Complete
+			todo.value.Description = updatedTodo.Description
+
+			return nil
+		}
+
+		todo = todo.next
+	}
+
+	return errors.New("todo not found")
 }

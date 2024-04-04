@@ -5,8 +5,8 @@
       method="post"
       action="/todo"
       hx-post="/todo"
+      hx-swap="outerHTML"
       hx-target="#todos"
-      hx-on:htmx:after-request="clearTodoForm(this)"
     >
       {{if .Error}}
         <div class="error">

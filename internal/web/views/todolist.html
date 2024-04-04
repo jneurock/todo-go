@@ -1,26 +1,7 @@
 {{block "todolist" .}}
   <div>
     {{range .}}
-      <div class="todo">
-        <div class="todo--attrs">
-          <div>
-            <input
-              name="complete-{{.ID}}"
-              type="checkbox"
-              {{if
-              .Complete}}checked{{end}}
-            />
-          </div>
-          <div class="todo--description">
-            <span>{{.Description}}</span>
-          </div>
-        </div>
-        <div class="todo--controls">
-          <button hx-delete="/todo/{{.ID}}" hx-target="#todos">
-            X
-          </button>
-        </div>
-      </div>
+      {{template "todo" .}}
     {{else}}
       <p>Add some todos!</p>
     {{end}}

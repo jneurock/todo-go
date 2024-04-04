@@ -1,0 +1,29 @@
+{{block "todo" .}}
+  <form
+    class="todo"
+    hx-put="/todo/{{.ID}}"
+    hx-swap="outerHTML"
+    hx-trigger="change throttle:250"
+  >
+    <div class="todo--attrs">
+      <div>
+        <input
+          name="complete"
+          type="checkbox"
+          {{if .Complete}}checked{{end}}
+        />
+      </div>
+      <div class="todo--description {{if .Complete}}todo--description__complete{{end}}">
+        <input
+          name="description"
+          type="text"
+          value="{{.Description}}"
+          required
+        >
+      </div>
+    </div>
+    <div class="todo--controls">
+      <button hx-delete="/todo/{{.ID}}" hx-target="#todos">X</button>
+    </div>
+  </form>
+{{end}}

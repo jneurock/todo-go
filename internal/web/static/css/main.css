@@ -38,6 +38,25 @@ body {
   padding: 0 1rem;
 }
 
+.todo--description input {
+  border: none;
+  border-bottom: 1px solid transparent;
+  font-size: 1.8rem;
+  margin: 0;
+  padding: 0;
+}
+
+.todo--description__complete input {
+  color: #999;
+  font-style: italic;
+  text-decoration: line-through;
+}
+
+.todo--description input:focus {
+  border-bottom: 1px solid #999;
+  outline: none;
+}
+
 .todo-form {
   border-bottom: 1px solid #999;
   margin-bottom: 1rem;
