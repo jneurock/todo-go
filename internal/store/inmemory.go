@@ -4,52 +4,12 @@ import (
 	"errors"
 	"strconv"
 
-	domain "github.com/jneurock/todo-go/internal/domain"
+	"github.com/jneurock/todo-go/internal/domain"
+	"github.com/jneurock/todo-go/internal/util"
 )
 
-type TodoQueueItem struct {
-	value *domain.Todo
-	next  *TodoQueueItem
-}
-
-type TodoQueue struct {
-	head *TodoQueueItem
-}
-
-func (tq *TodoQueue) Add(todo *domain.Todo) {
-	queueItem := &TodoQueueItem{value: todo}
-
-	if tq.head == nil {
-		tq.head = queueItem
-		return
-	}
-
-	queueItem.next = tq.head
-	tq.head = queueItem
-}
-
-func (tq *TodoQueue) Remove(id int64) {
-	var prevQueueItem *TodoQueueItem
-	queueItem := tq.head
-
-	for queueItem != nil {
-		if queueItem.value.ID == id {
-			if queueItem == tq.head {
-				tq.head = queueItem.next
-			} else {
-				prevQueueItem.next = queueItem.next
-			}
-
-			break
-		}
-
-		prevQueueItem = queueItem
-		queueItem = queueItem.next
-	}
-}
-
 type InMemoryTodoStore struct {
-	todos TodoQueue
+	todos util.Queue[domain.Todo]
 }
 
 var lastID int64 = -1
@@ -74,35 +34,37 @@ func (s *InMemoryTodoStore) Delete(id string) error {
 		return err
 	}
 
-	s.todos.Remove(int64(intId))
+	s.todos.Remove(func(todo *domain.Todo) bool {
+		return todo.ID == int64(intId)
+	})
 
 	return nil
 }
 
 func (s *InMemoryTodoStore) FindAll() ([]*domain.Todo, error) {
 	var todos []*domain.Todo
-	todo := s.todos.head
+	todo := s.todos.Head
 
 	for todo != nil {
-		todos = append([]*domain.Todo{todo.value}, todos...)
-		todo = todo.next
+		todos = append([]*domain.Todo{todo.Value}, todos...)
+		todo = todo.Next
 	}
 
 	return todos, nil
 }
 
 func (s *InMemoryTodoStore) Update(updatedTodo *domain.Todo) error {
-	todo := s.todos.head
+	todo := s.todos.Head
 
 	for todo != nil {
-		if todo.value.ID == updatedTodo.ID {
-			todo.value.Complete = updatedTodo.Complete
-			todo.value.Description = updatedTodo.Description
+		if todo.Value.ID == updatedTodo.ID {
+			todo.Value.Complete = updatedTodo.Complete
+			todo.Value.Description = updatedTodo.Description
 
 			return nil
 		}
 
-		todo = todo.next
+		todo = todo.Next
 	}
 
 	return errors.New("todo not found")
