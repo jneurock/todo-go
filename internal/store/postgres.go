@@ -41,8 +41,8 @@ func NewTodoPostsgresStore(sslmode string) (*TodoPostgresStore, error) {
 func (r *TodoPostgresStore) init() error {
 	query := `CREATE TABLE IF NOT EXISTS todo (
 		id serial primary key,
-		completed boolean,
-		title text
+		complete boolean,
+		description text
 	)`
 
 	_, err := r.db.Exec(query)
@@ -51,7 +51,7 @@ func (r *TodoPostgresStore) init() error {
 }
 
 func (r *TodoPostgresStore) Create(todo *domain.Todo) error {
-	query := `INSERT INTO todo (completed, title) values ($1, $2)`
+	query := "INSERT INTO todo (complete, description) values ($1, $2)"
 
 	_, err := r.db.Query(
 		query,
@@ -63,7 +63,7 @@ func (r *TodoPostgresStore) Create(todo *domain.Todo) error {
 }
 
 func (r *TodoPostgresStore) Delete(id string) error {
-	query := `DELETE FROM todo WHERE id = $1`
+	query := "DELETE FROM todo WHERE id = $1"
 
 	_, err := r.db.Exec(query, id)
 
@@ -101,7 +101,7 @@ func (r *TodoPostgresStore) FindAll() ([]*domain.Todo, error) {
 }
 
 func (r *TodoPostgresStore) Update(todo *domain.Todo) error {
-	query := `UPDATE todo SET completed = $1, title = $2 WHERE id = $3`
+	query := "UPDATE todo SET complete = $1, description = $2 WHERE id = $3"
 
 	_, err := r.db.Exec(query, todo.Complete, todo.Description, todo.ID)
 
