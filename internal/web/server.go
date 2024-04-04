@@ -22,9 +22,6 @@ func NewServer(store store.TodoStore) *Server {
 }
 
 func (s *Server) Start() {
-	static := http.Dir("internal/web/static")
-	staticFs := http.FileServer(static)
-
 	var err error
 	t, err = template.ParseGlob("internal/web/views/*.html")
 
@@ -33,10 +30,15 @@ func (s *Server) Start() {
 	}
 
 	mux := http.NewServeMux()
+
+	static := http.Dir("internal/web/static")
+	staticFs := http.FileServer(static)
 	mux.Handle("/static/", http.StripPrefix("/static/", staticFs))
+
 	mux.HandleFunc("DELETE /todo/{id}", s.handleDeleteTodo)
 	mux.HandleFunc("PUT /todo/{id}", s.handleUpdateTodo)
 	mux.HandleFunc("POST /todo", s.handleNewTodo)
+
 	mux.HandleFunc("/", s.handleIndex)
 
 	fmt.Println("Server started on port 8080")
@@ -45,7 +47,10 @@ func (s *Server) Start() {
 
 func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		if err := t.ExecuteTemplate(w, "404.html", nil); err != nil {
+			http.NotFound(w, r)
+		}
+
 		return
 	}
 
