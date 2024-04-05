@@ -7,8 +7,9 @@ import (
 
 func main() {
 	// TODO: Set up database connection
+	// NOTE: Don't panic if database connection fails. Render 500.html.
 
-	todoStore := store.NewInMemoryTodoStore()
+	todoStore := store.NewTodoInMemoryStore()
 
 	server := web.NewServer(todoStore)
 	server.Start()

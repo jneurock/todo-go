@@ -5,8 +5,9 @@ import (
 )
 
 type TodoStore interface {
-	Create(todo *domain.Todo) error
+	Create(description string) error
 	Delete(id string) error
+	Find(id string) (*domain.Todo, error)
 	FindAll() ([]*domain.Todo, error)
-	Update(todo *domain.Todo) error
+	Update(id, description string, complete bool) error
 }

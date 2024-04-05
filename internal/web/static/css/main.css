@@ -14,20 +14,36 @@ body {
   max-width: 48rem;
 }
 
-.error {
-  background-color: #f8d7da;
-  border: 1px solid #f1aeb5;
-  color: #58151c;
-  margin-bottom: 2rem;
+.alert {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 0;
+}
+
+.alert__warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffe69c;
+  color: #664d03;
+}
+
+.alert--dismiss {
+  cursor: pointer;
+  width: 1.6rem;
+}
+
+.alert--message {
   padding: 1rem;
 }
 
 .todo {
-  border-bottom: 1px solid #999;
   display: flex;
   justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.todo-container {
+  border-bottom: 1px solid #999;
   margin: 1rem 0;
-  padding-bottom: 1rem;
 }
 
 .todo--attrs {

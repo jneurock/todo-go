@@ -50,7 +50,8 @@ func (r *TodoPostgresStore) init() error {
 	return err
 }
 
-func (r *TodoPostgresStore) Create(todo *domain.Todo) error {
+func (r *TodoPostgresStore) Create(description string) error {
+	todo := domain.NewTodo(description)
 	query := "INSERT INTO todo (complete, description) values ($1, $2)"
 
 	_, err := r.db.Query(
@@ -64,15 +65,38 @@ func (r *TodoPostgresStore) Create(todo *domain.Todo) error {
 
 func (r *TodoPostgresStore) Delete(id string) error {
 	query := "DELETE FROM todo WHERE id = $1"
-
 	_, err := r.db.Exec(query, id)
 
 	return err
 }
 
+func (r *TodoPostgresStore) Find(id string) (*domain.Todo, error) {
+	query := "SELECT * FROM todo WHERE id = $1"
+	rows, err := r.db.Query(query, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	todo := new(domain.Todo)
+
+	for rows.Next() {
+		err := rows.Scan(
+			&todo.ID,
+			&todo.Complete,
+			&todo.Description,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return todo, nil
+}
+
 func (r *TodoPostgresStore) FindAll() ([]*domain.Todo, error) {
 	query := "SELECT * FROM todo"
-
 	rows, err := r.db.Query(query)
 
 	if err != nil {
@@ -100,10 +124,9 @@ func (r *TodoPostgresStore) FindAll() ([]*domain.Todo, error) {
 	return todos, nil
 }
 
-func (r *TodoPostgresStore) Update(todo *domain.Todo) error {
+func (r *TodoPostgresStore) Update(id, description string, complete bool) error {
 	query := "UPDATE todo SET complete = $1, description = $2 WHERE id = $3"
-
-	_, err := r.db.Exec(query, todo.Complete, todo.Description, todo.ID)
+	_, err := r.db.Exec(query, complete, description, id)
 
 	return err
 }

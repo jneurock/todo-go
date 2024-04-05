@@ -8,17 +8,19 @@ import (
 	"github.com/jneurock/todo-go/internal/util"
 )
 
-type InMemoryTodoStore struct {
+type TodoInMemoryStore struct {
 	todos util.Queue[domain.Todo]
 }
 
 var lastID int64 = -1
 
-func NewInMemoryTodoStore() *InMemoryTodoStore {
-	return &InMemoryTodoStore{}
+func NewTodoInMemoryStore() *TodoInMemoryStore {
+	return &TodoInMemoryStore{}
 }
 
-func (s *InMemoryTodoStore) Create(todo *domain.Todo) error {
+func (s *TodoInMemoryStore) Create(description string) error {
+	todo := domain.NewTodo(description)
+
 	todo.ID = lastID + 1
 	lastID = todo.ID
 
@@ -27,7 +29,7 @@ func (s *InMemoryTodoStore) Create(todo *domain.Todo) error {
 	return nil
 }
 
-func (s *InMemoryTodoStore) Delete(id string) error {
+func (s *TodoInMemoryStore) Delete(id string) error {
 	intId, err := strconv.Atoi(id)
 
 	if err != nil {
@@ -41,7 +43,27 @@ func (s *InMemoryTodoStore) Delete(id string) error {
 	return nil
 }
 
-func (s *InMemoryTodoStore) FindAll() ([]*domain.Todo, error) {
+func (s *TodoInMemoryStore) Find(id string) (*domain.Todo, error) {
+	intId, err := strconv.Atoi(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	todo := s.todos.Head
+
+	for todo != nil {
+		if todo.Value.ID == int64(intId) {
+			return todo.Value, nil
+		}
+
+		todo = todo.Next
+	}
+
+	return nil, errors.New("todo not found")
+}
+
+func (s *TodoInMemoryStore) FindAll() ([]*domain.Todo, error) {
 	var todos []*domain.Todo
 	todo := s.todos.Head
 
@@ -53,19 +75,15 @@ func (s *InMemoryTodoStore) FindAll() ([]*domain.Todo, error) {
 	return todos, nil
 }
 
-func (s *InMemoryTodoStore) Update(updatedTodo *domain.Todo) error {
-	todo := s.todos.Head
+func (s *TodoInMemoryStore) Update(id, description string, complete bool) error {
+	todo, err := s.Find(id)
 
-	for todo != nil {
-		if todo.Value.ID == updatedTodo.ID {
-			todo.Value.Complete = updatedTodo.Complete
-			todo.Value.Description = updatedTodo.Description
-
-			return nil
-		}
-
-		todo = todo.Next
+	if err != nil {
+		return err
 	}
 
-	return errors.New("todo not found")
+	todo.Description = description
+	todo.Complete = complete
+
+	return nil
 }

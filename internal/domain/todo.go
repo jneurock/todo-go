@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-var ErrInvalidDescription = errors.New("invalid description")
+var ErrInvalidDescription = errors.New("description cannot be empty")
 
 type Todo struct {
 	Complete    bool
@@ -13,13 +13,14 @@ type Todo struct {
 	Description string
 }
 
-func NewTodo(description string, complete bool) (*Todo, error) {
+func NewDescription(description string) (string, error) {
 	if strings.TrimSpace(description) == "" {
-		return nil, ErrInvalidDescription
+		return "", ErrInvalidDescription
 	}
 
-	return &Todo{
-		Complete:    complete,
-		Description: description,
-	}, nil
+	return description, nil
+}
+
+func NewTodo(description string) *Todo {
+	return &Todo{Description: description}
 }

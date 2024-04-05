@@ -5,13 +5,29 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/jneurock/todo-go/internal/domain"
 	"github.com/jneurock/todo-go/internal/store"
 )
 
 var t *template.Template
+
+type UITodo struct {
+	Error error
+	Todo  *domain.Todo
+}
+
+func newUITodo(todo *domain.Todo, err error) *UITodo {
+	return &UITodo{Todo: todo, Error: err}
+}
+
+func newUITodoSlice(todos []*domain.Todo) (uiTodos []*UITodo) {
+	for _, t := range todos {
+		uiTodos = append(uiTodos, newUITodo(t, nil))
+	}
+
+	return
+}
 
 type Server struct {
 	store store.TodoStore
@@ -35,149 +51,110 @@ func (s *Server) Start() {
 	staticFs := http.FileServer(static)
 	mux.Handle("/static/", http.StripPrefix("/static/", staticFs))
 
-	mux.HandleFunc("DELETE /todo/{id}", s.handleDeleteTodo)
-	mux.HandleFunc("PUT /todo/{id}", s.handleUpdateTodo)
-	mux.HandleFunc("POST /todo", s.handleNewTodo)
+	mux.HandleFunc("DELETE /todo/{id}", createHandler(s.handleDeleteTodo))
+	mux.HandleFunc("PUT /todo/{id}", createHandler(s.handleUpdateTodo))
+	mux.HandleFunc("POST /todo", createHandler(s.handleNewTodo))
 
-	mux.HandleFunc("/", s.handleIndex)
+	mux.HandleFunc("/", createHandler(s.handleIndex))
 
-	fmt.Println("Server started on port 8080")
+	fmt.Println("Server started on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
 
-func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
+type Handler func(http.ResponseWriter, *http.Request) error
+
+func createHandler(handler Handler) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := handler(w, r)
+
+		if err != nil {
+			err = t.ExecuteTemplate(w, "500.html", nil)
+
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+}
+
+func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) error {
 	if r.URL.Path != "/" {
 		if err := t.ExecuteTemplate(w, "404.html", nil); err != nil {
-			http.NotFound(w, r)
+			return err
 		}
 
-		return
+		return nil
 	}
 
 	todos, err := s.store.FindAll()
 
-	err = t.ExecuteTemplate(w, "index.html", &struct {
-		Error error
-		Todos []*domain.Todo
-	}{
-		Error: err,
-		Todos: todos,
-	})
-
 	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
+		return err
 	}
+
+	return t.ExecuteTemplate(w, "index.html", &struct {
+		Error error
+		Todos []*UITodo
+	}{
+		Error: nil,
+		Todos: newUITodoSlice(todos),
+	})
 }
 
-func (s *Server) handleDeleteTodo(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handleDeleteTodo(w http.ResponseWriter, r *http.Request) error {
 	id := r.PathValue("id")
-	err := s.store.Delete(id)
-
-	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
-	}
-
+	errDelete := s.store.Delete(id)
 	todos, err := s.store.FindAll()
 
 	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
-		return
+		return err
 	}
 
-	err = t.ExecuteTemplate(w, "todos", &struct {
+	return t.ExecuteTemplate(w, "todos", &struct {
 		Error error
-		Todos []*domain.Todo
+		Todos []*UITodo
+	}{
+		Error: errDelete,
+		Todos: newUITodoSlice(todos),
+	})
+}
+
+func (s *Server) handleNewTodo(w http.ResponseWriter, r *http.Request) error {
+	description, err := domain.NewDescription(r.FormValue("description"))
+
+	if err == nil {
+		err = s.store.Create(description)
+	}
+
+	todos, errFindAll := s.store.FindAll()
+
+	if errFindAll != nil {
+		return errFindAll
+	}
+
+	return t.ExecuteTemplate(w, "todos", &struct {
+		Error error
+		Todos []*UITodo
 	}{
 		Error: err,
-		Todos: todos,
+		Todos: newUITodoSlice(todos),
 	})
-
-	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
-	}
 }
 
-// TODO: Improve the error handling here
-func (s *Server) handleNewTodo(w http.ResponseWriter, r *http.Request) {
-	todo, err := domain.NewTodo(r.FormValue("description"), false)
+func (s *Server) handleUpdateTodo(w http.ResponseWriter, r *http.Request) error {
+	id := r.PathValue("id")
+	description, err := domain.NewDescription(r.FormValue("description"))
+	complete := r.FormValue("complete") != ""
 
-	if err != nil {
-		todos, errFindTodos := s.store.FindAll()
-
-		if errFindTodos != nil {
-			renderTodos(w, todos, errFindTodos)
-			return
-		}
-
-		renderTodos(w, todos, err)
-		return
+	if err == nil {
+		err = s.store.Update(id, description, complete)
 	}
 
-	err = s.store.Create(todo)
-	todos, errFindTodos := s.store.FindAll()
+	todo, errFind := s.store.Find(id)
 
-	if err != nil {
-		if errFindTodos != nil {
-			renderTodos(w, todos, errFindTodos)
-			return
-		}
-
-		renderTodos(w, todos, err)
-		return
+	if errFind != nil {
+		return errFind
 	}
 
-	renderTodos(w, todos, nil)
-}
-
-func (s *Server) handleUpdateTodo(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-
-	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
-		return
-	}
-
-	complete := false
-	description := r.FormValue("description")
-
-	if len(r.FormValue("complete")) != 0 {
-		complete = true
-	}
-
-	todo, err := domain.NewTodo(description, complete)
-
-	// TODO: Handle todo validation better
-	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
-		return
-	}
-
-	todo.ID = int64(id)
-
-	err = s.store.Update(todo)
-
-	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
-		return
-	}
-
-	err = t.ExecuteTemplate(w, "todo", todo)
-
-	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
-	}
-}
-
-func renderTodos(w http.ResponseWriter, todos []*domain.Todo, err error) {
-	err = t.ExecuteTemplate(w, "todos", &struct {
-		Error error
-		Todos []*domain.Todo
-	}{
-		Error: err,
-		Todos: todos,
-	})
-
-	if err != nil {
-		fmt.Fprintf(w, "Error: %v", err)
-	}
+	return t.ExecuteTemplate(w, "todo", newUITodo(todo, err))
 }

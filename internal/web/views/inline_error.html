@@ -1,0 +1,13 @@
+{{block "inline_error" .}}
+  <div class="alert alert__warning">
+    <div class="alert--message">
+      Error: {{.Error}}
+    </div>
+    <div
+      class="alert--dismiss"
+      onclick="((el) => el.parentNode.remove())(this)"
+    >
+      &times;
+    </div>
+  </div>
+{{end}}

@@ -6,11 +6,6 @@
       hx-swap="outerHTML"
       hx-target="#todos"
     >
-      {{if .Error}}
-        <div class="error">
-          Error: {{.Error}}
-        </div>
-      {{end}}
       <div class="todo-form--label">
         <label for="description">Description</label>
       </div>
@@ -23,6 +18,9 @@
             autofocus
             required
           >
+          {{if .Error}}
+            {{template "inline_error" .Error}}
+          {{end}}
         </div>
         <div>
           <button class="todo-form--button" type="submit">Create</button>
