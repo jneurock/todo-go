@@ -9,20 +9,19 @@ import (
 )
 
 type TodoInMemoryStore struct {
-	todos util.Queue[domain.Todo]
+	lastID int64
+	todos  util.Queue[domain.Todo]
 }
 
-var lastID int64 = -1
-
 func NewTodoInMemoryStore() *TodoInMemoryStore {
-	return &TodoInMemoryStore{}
+	return &TodoInMemoryStore{lastID: -1}
 }
 
 func (s *TodoInMemoryStore) Create(description string) error {
 	todo := domain.NewTodo(description)
 
-	todo.ID = lastID + 1
-	lastID = todo.ID
+	todo.ID = s.lastID + 1
+	s.lastID = todo.ID
 
 	s.todos.Add(todo)
 
@@ -68,7 +67,7 @@ func (s *TodoInMemoryStore) FindAll() ([]*domain.Todo, error) {
 	todo := s.todos.Head
 
 	for todo != nil {
-		todos = append([]*domain.Todo{todo.Value}, todos...)
+		todos = append(todos, todo.Value)
 		todo = todo.Next
 	}
 
