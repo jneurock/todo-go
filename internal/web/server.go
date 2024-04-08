@@ -10,8 +10,6 @@ import (
 	"github.com/jneurock/todo-go/internal/store"
 )
 
-var t *template.Template
-
 type UITodo struct {
 	Error error
 	Todo  *domain.Todo
@@ -30,32 +28,32 @@ func newUITodoSlice(todos []*domain.Todo) (uiTodos []*UITodo) {
 }
 
 type Server struct {
-	store store.TodoStore
+	store     store.TodoStore
+	templates *template.Template
 }
 
-func NewServer(store store.TodoStore) *Server {
-	return &Server{store}
+func NewServer(store store.TodoStore, templatePath string) (*Server, error) {
+	t, err := template.ParseGlob(fmt.Sprintf("%s/*.html", templatePath))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Server{store: store, templates: t}, nil
 }
 
 func (s *Server) Start() {
-	var err error
-	t, err = template.ParseGlob("internal/web/views/*.html")
-
-	if err != nil {
-		panic(err)
-	}
-
 	mux := http.NewServeMux()
 
 	static := http.Dir("internal/web/static")
 	staticFs := http.FileServer(static)
 	mux.Handle("/static/", http.StripPrefix("/static/", staticFs))
 
-	mux.HandleFunc("DELETE /todo/{id}", createHandler(s.handleDeleteTodo))
-	mux.HandleFunc("PUT /todo/{id}", createHandler(s.handleUpdateTodo))
-	mux.HandleFunc("POST /todo", createHandler(s.handleNewTodo))
+	mux.HandleFunc("DELETE /todo/{id}", s.createHandler(s.handleDeleteTodo))
+	mux.HandleFunc("PUT /todo/{id}", s.createHandler(s.handleUpdateTodo))
+	mux.HandleFunc("POST /todo", s.createHandler(s.handleNewTodo))
 
-	mux.HandleFunc("/", createHandler(s.handleIndex))
+	mux.HandleFunc("/", s.createHandler(s.handleIndex))
 
 	fmt.Println("Server started on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))
@@ -63,12 +61,12 @@ func (s *Server) Start() {
 
 type Handler func(http.ResponseWriter, *http.Request) error
 
-func createHandler(handler Handler) func(http.ResponseWriter, *http.Request) {
+func (s *Server) createHandler(handler Handler) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := handler(w, r)
 
 		if err != nil {
-			err = t.ExecuteTemplate(w, "500.html", nil)
+			err = s.templates.ExecuteTemplate(w, "500.html", nil)
 
 			if err != nil {
 				panic(err)
@@ -79,11 +77,7 @@ func createHandler(handler Handler) func(http.ResponseWriter, *http.Request) {
 
 func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) error {
 	if r.URL.Path != "/" {
-		if err := t.ExecuteTemplate(w, "404.html", nil); err != nil {
-			return err
-		}
-
-		return nil
+		return s.templates.ExecuteTemplate(w, "404.html", nil)
 	}
 
 	todos, err := s.store.FindAll()
@@ -92,7 +86,7 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return t.ExecuteTemplate(w, "index.html", &struct {
+	return s.templates.ExecuteTemplate(w, "index.html", &struct {
 		Error error
 		Todos []*UITodo
 	}{
@@ -110,7 +104,7 @@ func (s *Server) handleDeleteTodo(w http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 
-	return t.ExecuteTemplate(w, "todos", &struct {
+	return s.templates.ExecuteTemplate(w, "todos", &struct {
 		Error error
 		Todos []*UITodo
 	}{
@@ -132,7 +126,7 @@ func (s *Server) handleNewTodo(w http.ResponseWriter, r *http.Request) error {
 		return errFindAll
 	}
 
-	return t.ExecuteTemplate(w, "todos", &struct {
+	return s.templates.ExecuteTemplate(w, "todos", &struct {
 		Error error
 		Todos []*UITodo
 	}{
@@ -156,5 +150,5 @@ func (s *Server) handleUpdateTodo(w http.ResponseWriter, r *http.Request) error 
 		return errFind
 	}
 
-	return t.ExecuteTemplate(w, "todo", newUITodo(todo, err))
+	return s.templates.ExecuteTemplate(w, "todo", newUITodo(todo, err))
 }

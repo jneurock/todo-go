@@ -1,0 +1,339 @@
+
+[TestNotFound - 1]
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Todos | Page Not Found</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="The page at this URL was not found. Visit the home page instead.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/main.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Page Not Found</h1>
+      <p>
+        That&rsquo;s to be expected, honestly.
+      </p>
+      <p>
+        This little TODO app only has one page: <a href="/">The home page</a>.
+      </p>
+    </main>
+  </body>
+</html>
+
+---
+
+[TestNewTodo - 1]
+
+  <div id="todos">
+    <form
+      class="todo-form"
+      hx-post="/todo"
+      hx-swap="outerHTML"
+      hx-target="#todos"
+    >
+      <div class="todo-form--label">
+        <label for="description">Description</label>
+      </div>
+      <div class="todo-form--controls">
+        <div>
+          <input
+            class="todo-form--input"
+            name="description"
+            type="text"
+            autofocus
+            required
+          >
+          
+        </div>
+        <div>
+          <button class="todo-form--button" type="submit">Create</button>
+        </div>
+      </div>
+    </form>
+    
+      
+  <div id="todo-container-0" class="todo-container">
+    <form
+      class="todo"
+      hx-put="/todo/0"
+      hx-swap="outerHTML"
+      hx-target="#todo-container-0"
+      hx-trigger="change throttle:250"
+    >
+      <div class="todo--attrs">
+        <div>
+          <input
+            name="complete"
+            type="checkbox"
+            
+          />
+        </div>
+        <div class="todo--description ">
+          <input
+            name="description"
+            type="text"
+            value="Do chores"
+            required
+          >
+        </div>
+      </div>
+      <div class="todo--controls">
+        <button hx-delete="/todo/0" hx-target="#todos">
+          &times;
+        </button>
+      </div>
+    </form>
+    
+  </div>
+
+    
+  </div>
+
+---
+
+[TestDeleteTodo - 1]
+
+  <div id="todos">
+    <form
+      class="todo-form"
+      hx-post="/todo"
+      hx-swap="outerHTML"
+      hx-target="#todos"
+    >
+      <div class="todo-form--label">
+        <label for="description">Description</label>
+      </div>
+      <div class="todo-form--controls">
+        <div>
+          <input
+            class="todo-form--input"
+            name="description"
+            type="text"
+            autofocus
+            required
+          >
+          
+        </div>
+        <div>
+          <button class="todo-form--button" type="submit">Create</button>
+        </div>
+      </div>
+    </form>
+    
+      <p>Add some todos!</p>
+    
+  </div>
+
+---
+
+[TestUpdateTodo - 1]
+
+  <div id="todo-container-0" class="todo-container">
+    <form
+      class="todo"
+      hx-put="/todo/0"
+      hx-swap="outerHTML"
+      hx-target="#todo-container-0"
+      hx-trigger="change throttle:250"
+    >
+      <div class="todo--attrs">
+        <div>
+          <input
+            name="complete"
+            type="checkbox"
+            checked
+          />
+        </div>
+        <div class="todo--description todo--description__complete">
+          <input
+            name="description"
+            type="text"
+            value="Update me again"
+            required
+          >
+        </div>
+      </div>
+      <div class="todo--controls">
+        <button hx-delete="/todo/0" hx-target="#todos">
+          &times;
+        </button>
+      </div>
+    </form>
+    
+  </div>
+
+---
+
+[TestIndex - 1]
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Todos</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <script src="/static/js/htmx.min.js"></script>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Todos</h1>
+      
+  <div id="todos">
+    <form
+      class="todo-form"
+      hx-post="/todo"
+      hx-swap="outerHTML"
+      hx-target="#todos"
+    >
+      <div class="todo-form--label">
+        <label for="description">Description</label>
+      </div>
+      <div class="todo-form--controls">
+        <div>
+          <input
+            class="todo-form--input"
+            name="description"
+            type="text"
+            autofocus
+            required
+          >
+          
+        </div>
+        <div>
+          <button class="todo-form--button" type="submit">Create</button>
+        </div>
+      </div>
+    </form>
+    
+      <p>Add some todos!</p>
+    
+  </div>
+
+    </main>
+  </body>
+</html>
+
+---
+
+[TestIndexSeeded - 1]
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Todos</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <script src="/static/js/htmx.min.js"></script>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Todos</h1>
+      
+  <div id="todos">
+    <form
+      class="todo-form"
+      hx-post="/todo"
+      hx-swap="outerHTML"
+      hx-target="#todos"
+    >
+      <div class="todo-form--label">
+        <label for="description">Description</label>
+      </div>
+      <div class="todo-form--controls">
+        <div>
+          <input
+            class="todo-form--input"
+            name="description"
+            type="text"
+            autofocus
+            required
+          >
+          
+        </div>
+        <div>
+          <button class="todo-form--button" type="submit">Create</button>
+        </div>
+      </div>
+    </form>
+    
+      
+  <div id="todo-container-1" class="todo-container">
+    <form
+      class="todo"
+      hx-put="/todo/1"
+      hx-swap="outerHTML"
+      hx-target="#todo-container-1"
+      hx-trigger="change throttle:250"
+    >
+      <div class="todo--attrs">
+        <div>
+          <input
+            name="complete"
+            type="checkbox"
+            
+          />
+        </div>
+        <div class="todo--description ">
+          <input
+            name="description"
+            type="text"
+            value="Buy groceries"
+            required
+          >
+        </div>
+      </div>
+      <div class="todo--controls">
+        <button hx-delete="/todo/1" hx-target="#todos">
+          &times;
+        </button>
+      </div>
+    </form>
+    
+  </div>
+
+    
+      
+  <div id="todo-container-0" class="todo-container">
+    <form
+      class="todo"
+      hx-put="/todo/0"
+      hx-swap="outerHTML"
+      hx-target="#todo-container-0"
+      hx-trigger="change throttle:250"
+    >
+      <div class="todo--attrs">
+        <div>
+          <input
+            name="complete"
+            type="checkbox"
+            
+          />
+        </div>
+        <div class="todo--description ">
+          <input
+            name="description"
+            type="text"
+            value="Do chores"
+            required
+          >
+        </div>
+      </div>
+      <div class="todo--controls">
+        <button hx-delete="/todo/0" hx-target="#todos">
+          &times;
+        </button>
+      </div>
+    </form>
+    
+  </div>
+
+    
+  </div>
+
+    </main>
+  </body>
+</html>
+
+---

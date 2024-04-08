@@ -10,7 +10,12 @@ func main() {
 	// NOTE: Don't panic if database connection fails. Render 500.html.
 
 	todoStore := store.NewTodoInMemoryStore()
+	templatePath := "internal/web/views"
+	server, err := web.NewServer(todoStore, templatePath)
 
-	server := web.NewServer(todoStore)
+	if err != nil {
+		panic(err)
+	}
+
 	server.Start()
 }
