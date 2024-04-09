@@ -9,16 +9,25 @@ import (
 )
 
 type TodoInMemoryStore struct {
-	lastID int64
-	todos  util.Queue[domain.Todo]
+	isAvailable bool
+	lastID      int64
+	todos       util.Queue[domain.Todo]
 }
 
-func NewTodoInMemoryStore() *TodoInMemoryStore {
-	return &TodoInMemoryStore{lastID: -1}
+func NewTodoInMemoryStore(available ...bool) *TodoInMemoryStore {
+	var isAvailable bool
+
+	if len(available) == 0 {
+		isAvailable = true
+	} else {
+		isAvailable = available[0]
+	}
+
+	return &TodoInMemoryStore{isAvailable: isAvailable, lastID: -1}
 }
 
 func (s *TodoInMemoryStore) IsAvailable() bool {
-	return true
+	return s.isAvailable
 }
 
 func (s *TodoInMemoryStore) Create(description string) error {

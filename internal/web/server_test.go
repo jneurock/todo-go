@@ -13,8 +13,8 @@ import (
 	"github.com/jneurock/todo-go/internal/store"
 )
 
-func newTestServer(t *testing.T) *Server {
-	store := store.NewTodoInMemoryStore()
+func newTestServer(t *testing.T, isStoreAvailable bool) *Server {
+	store := store.NewTodoInMemoryStore(isStoreAvailable)
 	server, err := NewServer(store, "views")
 
 	if err != nil {
@@ -24,13 +24,10 @@ func newTestServer(t *testing.T) *Server {
 	return server
 }
 
-func testHandler(t *testing.T, r *http.Request, h Handler) {
+func testHandler(t *testing.T, r *http.Request, handler func(http.ResponseWriter, *http.Request)) {
 	w := httptest.NewRecorder()
-	err := h(w, r)
 
-	if err != nil {
-		t.Fatal(err)
-	}
+	handler(w, r)
 
 	response := w.Result()
 
@@ -45,44 +42,51 @@ func testHandler(t *testing.T, r *http.Request, h Handler) {
 	snaps.MatchSnapshot(t, string(b))
 }
 
+func Test500(t *testing.T) {
+	server := newTestServer(t, false)
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+
+	testHandler(t, r, server.createHandler(server.handleIndex))
+}
+
 func TestNotFound(t *testing.T) {
-	server := newTestServer(t)
+	server := newTestServer(t, true)
 	r := httptest.NewRequest(http.MethodGet, "/doesnotexist", nil)
 
-	testHandler(t, r, server.handleIndex)
+	testHandler(t, r, server.createHandler(server.handleIndex))
 }
 
 func TestIndex(t *testing.T) {
-	server := newTestServer(t)
+	server := newTestServer(t, true)
 
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 
-	testHandler(t, r, server.handleIndex)
+	testHandler(t, r, server.createHandler(server.handleIndex))
 }
 
 func TestIndexSeeded(t *testing.T) {
-	server := newTestServer(t)
+	server := newTestServer(t, true)
 
 	server.store.Create("Do chores")
 	server.store.Create("Buy groceries")
 
 	r := httptest.NewRequest(http.MethodGet, "/", nil)
 
-	testHandler(t, r, server.handleIndex)
+	testHandler(t, r, server.createHandler(server.handleIndex))
 }
 
 func TestNewTodo(t *testing.T) {
-	server := newTestServer(t)
+	server := newTestServer(t, true)
 	body := strings.NewReader("description=Do%20chores")
 
 	r := httptest.NewRequest(http.MethodPost, "/todo", body)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	testHandler(t, r, server.handleNewTodo)
+	testHandler(t, r, server.createHandler(server.handleNewTodo))
 }
 
 func TestDeleteTodo(t *testing.T) {
-	server := newTestServer(t)
+	server := newTestServer(t, true)
 	err := server.store.Create("Delete me")
 
 	if err != nil {
@@ -101,11 +105,11 @@ func TestDeleteTodo(t *testing.T) {
 	r := httptest.NewRequest(http.MethodDelete, url, nil)
 	r.SetPathValue("id", id)
 
-	testHandler(t, r, server.handleDeleteTodo)
+	testHandler(t, r, server.createHandler(server.handleDeleteTodo))
 }
 
 func TestUpdateTodo(t *testing.T) {
-	server := newTestServer(t)
+	server := newTestServer(t, true)
 	err := server.store.Create("Update me")
 
 	if err != nil {
@@ -126,5 +130,5 @@ func TestUpdateTodo(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r.SetPathValue("id", id)
 
-	testHandler(t, r, server.handleUpdateTodo)
+	testHandler(t, r, server.createHandler(server.handleUpdateTodo))
 }
