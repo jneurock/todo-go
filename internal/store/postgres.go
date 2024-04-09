@@ -9,27 +9,19 @@ import (
 )
 
 type TodoPostgresStore struct {
-	available bool
-	db        *sql.DB
+	isAvailable bool
+	db          *sql.DB
 }
 
-// TODO: Let this accept a database
-// TODO: Don't depend on sql.DB directly
-func NewTodoPostsgresStore(connStr string) *TodoPostgresStore {
-	db, err := sql.Open("postgres", connStr)
-
-	store := &TodoPostgresStore{db: db, available: err != nil}
-
-	if err != nil {
-		return store
-	}
+func NewTodoPostsgresStore(db *sql.DB, isAvailable bool) *TodoPostgresStore {
+	store := &TodoPostgresStore{db: db, isAvailable: true}
 
 	if err := db.Ping(); err != nil {
-		store.available = false
+		store.isAvailable = false
 	}
 
 	if err := store.init(); err != nil {
-		store.available = false
+		store.isAvailable = false
 	}
 
 	return store
@@ -48,7 +40,7 @@ func (s *TodoPostgresStore) init() error {
 }
 
 func (s *TodoPostgresStore) IsAvailable() bool {
-	return s.available
+	return s.isAvailable
 }
 
 func (s *TodoPostgresStore) Create(description string) error {
