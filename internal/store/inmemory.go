@@ -17,6 +17,10 @@ func NewTodoInMemoryStore() *TodoInMemoryStore {
 	return &TodoInMemoryStore{lastID: -1}
 }
 
+func (s *TodoInMemoryStore) IsAvailable() bool {
+	return true
+}
+
 func (s *TodoInMemoryStore) Create(description string) error {
 	todo := domain.NewTodo(description)
 

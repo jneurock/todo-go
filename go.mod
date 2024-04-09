@@ -4,6 +4,8 @@ go 1.22.0
 
 require github.com/lib/pq v1.10.9
 
+require github.com/DATA-DOG/go-sqlmock v1.5.2
+
 require (
 	github.com/gkampitakis/ciinfo v0.3.0 // indirect
 	github.com/gkampitakis/go-diff v1.3.2 // indirect

@@ -2,59 +2,60 @@ package store
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
 
-	domain "github.com/jneurock/todo-go/internal/domain"
+	"github.com/jneurock/todo-go/internal/domain"
 
 	_ "github.com/lib/pq"
 )
 
 type TodoPostgresStore struct {
-	db *sql.DB
+	available bool
+	db        *sql.DB
 }
 
-func NewTodoPostsgresStore(sslmode string) (*TodoPostgresStore, error) {
-	user := os.Getenv("DB_USER")
-	pw := os.Getenv("DB_PW")
-	name := os.Getenv("DB_NAME")
-	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=%s", user, name, pw, sslmode)
+// TODO: Let this accept a database
+// TODO: Don't depend on sql.DB directly
+func NewTodoPostsgresStore(connStr string) *TodoPostgresStore {
 	db, err := sql.Open("postgres", connStr)
 
+	store := &TodoPostgresStore{db: db, available: err != nil}
+
 	if err != nil {
-		return nil, err
+		return store
 	}
 
 	if err := db.Ping(); err != nil {
-		return nil, err
+		store.available = false
 	}
-
-	store := &TodoPostgresStore{db: db}
 
 	if err := store.init(); err != nil {
-		return nil, err
+		store.available = false
 	}
 
-	return store, nil
+	return store
 }
 
-func (r *TodoPostgresStore) init() error {
+func (s *TodoPostgresStore) init() error {
 	query := `CREATE TABLE IF NOT EXISTS todo (
 		id serial primary key,
 		complete boolean,
 		description text
 	)`
 
-	_, err := r.db.Exec(query)
+	_, err := s.db.Exec(query)
 
 	return err
 }
 
-func (r *TodoPostgresStore) Create(description string) error {
+func (s *TodoPostgresStore) IsAvailable() bool {
+	return s.available
+}
+
+func (s *TodoPostgresStore) Create(description string) error {
 	todo := domain.NewTodo(description)
 	query := "INSERT INTO todo (complete, description) values ($1, $2)"
 
-	_, err := r.db.Query(
+	_, err := s.db.Query(
 		query,
 		todo.Complete,
 		todo.Description,
@@ -63,16 +64,16 @@ func (r *TodoPostgresStore) Create(description string) error {
 	return err
 }
 
-func (r *TodoPostgresStore) Delete(id string) error {
+func (s *TodoPostgresStore) Delete(id string) error {
 	query := "DELETE FROM todo WHERE id = $1"
-	_, err := r.db.Exec(query, id)
+	_, err := s.db.Exec(query, id)
 
 	return err
 }
 
-func (r *TodoPostgresStore) Find(id string) (*domain.Todo, error) {
+func (s *TodoPostgresStore) Find(id string) (*domain.Todo, error) {
 	query := "SELECT * FROM todo WHERE id = $1"
-	rows, err := r.db.Query(query, id)
+	rows, err := s.db.Query(query, id)
 
 	if err != nil {
 		return nil, err
@@ -95,9 +96,9 @@ func (r *TodoPostgresStore) Find(id string) (*domain.Todo, error) {
 	return todo, nil
 }
 
-func (r *TodoPostgresStore) FindAll() ([]*domain.Todo, error) {
+func (s *TodoPostgresStore) FindAll() ([]*domain.Todo, error) {
 	query := "SELECT * FROM todo"
-	rows, err := r.db.Query(query)
+	rows, err := s.db.Query(query)
 
 	if err != nil {
 		return nil, err
@@ -124,9 +125,9 @@ func (r *TodoPostgresStore) FindAll() ([]*domain.Todo, error) {
 	return todos, nil
 }
 
-func (r *TodoPostgresStore) Update(id, description string, complete bool) error {
+func (s *TodoPostgresStore) Update(id, description string, complete bool) error {
 	query := "UPDATE todo SET complete = $1, description = $2 WHERE id = $3"
-	_, err := r.db.Exec(query, complete, description, id)
+	_, err := s.db.Exec(query, complete, description, id)
 
 	return err
 }

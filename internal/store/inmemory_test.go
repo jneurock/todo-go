@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestCreateAndFind(t *testing.T) {
+func TestInMemoryCreateAndFind(t *testing.T) {
 	var id int64 = 0
 	want := "Do chores"
 	store := NewTodoInMemoryStore()
@@ -34,7 +34,7 @@ func TestCreateAndFind(t *testing.T) {
 	}
 }
 
-func TestDelete(t *testing.T) {
+func TestInMemoryDelete(t *testing.T) {
 	store := NewTodoInMemoryStore()
 	err := store.Create("Do chores")
 
@@ -50,7 +50,7 @@ func TestDelete(t *testing.T) {
 	}
 }
 
-func TestFindAll(t *testing.T) {
+func TestInMemoryFindAll(t *testing.T) {
 	store := NewTodoInMemoryStore()
 	want := []string{"Do chores", "Go to the store"}
 
@@ -72,7 +72,7 @@ func TestFindAll(t *testing.T) {
 	}
 }
 
-func TestUpdate(t *testing.T) {
+func TestInMemoryUpdate(t *testing.T) {
 	store := NewTodoInMemoryStore()
 	want := "Do more chores"
 

@@ -1,6 +1,7 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"log"
@@ -80,6 +81,10 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) error {
 		return s.templates.ExecuteTemplate(w, "404.html", nil)
 	}
 
+	if !s.store.IsAvailable() {
+		return errors.New("store is unavailable")
+	}
+
 	todos, err := s.store.FindAll()
 
 	if err != nil {
@@ -96,6 +101,10 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *Server) handleDeleteTodo(w http.ResponseWriter, r *http.Request) error {
+	if !s.store.IsAvailable() {
+		return errors.New("store is unavailable")
+	}
+
 	id := r.PathValue("id")
 	errDelete := s.store.Delete(id)
 	todos, err := s.store.FindAll()
@@ -114,6 +123,10 @@ func (s *Server) handleDeleteTodo(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (s *Server) handleNewTodo(w http.ResponseWriter, r *http.Request) error {
+	if !s.store.IsAvailable() {
+		return errors.New("store is unavailable")
+	}
+
 	description, err := domain.NewDescription(r.FormValue("description"))
 
 	if err == nil {
@@ -136,6 +149,10 @@ func (s *Server) handleNewTodo(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *Server) handleUpdateTodo(w http.ResponseWriter, r *http.Request) error {
+	if !s.store.IsAvailable() {
+		return errors.New("store is unavailable")
+	}
+
 	id := r.PathValue("id")
 	description, err := domain.NewDescription(r.FormValue("description"))
 	complete := r.FormValue("complete") != ""

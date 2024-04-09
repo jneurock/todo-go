@@ -1,10 +1,11 @@
 package store
 
 import (
-	domain "github.com/jneurock/todo-go/internal/domain"
+	"github.com/jneurock/todo-go/internal/domain"
 )
 
 type TodoStore interface {
+	IsAvailable() bool
 	Create(description string) error
 	Delete(id string) error
 	Find(id string) (*domain.Todo, error)
