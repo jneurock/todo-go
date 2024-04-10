@@ -20,19 +20,20 @@ func flagExists(flagName string) (found bool) {
 	return
 }
 
-func setUpStore() (store.TodoStore, *sql.DB) {
+func setUpStore() store.TodoStore {
 	if flagExists("localdb") {
-		return store.NewTodoInMemoryStore(), nil
+		return store.NewTodoInMemoryStore()
 	}
 
-	user := os.Getenv("DB_USER")
-	pw := os.Getenv("DB_PW")
-	name := os.Getenv("DB_NAME")
-	sslmode := os.Getenv("DB_SSL_MODE")
-	connStr := fmt.Sprintf("user=%s dbname=%s password=%s sslmode=%s", user, name, pw, sslmode)
+	connStr := "user=todouser dbname=todo password=todopassword sslmode=disable"
+
+	if host := os.Getenv("TODO_DB_HOST"); host != "" {
+		connStr = fmt.Sprintf("host=%s %s", host, connStr)
+	}
+
 	db, err := sql.Open("postgres", connStr)
 
-	return store.NewTodoPostsgresStore(db, err != nil), db
+	return store.NewTodoPostsgresStore(db, err == nil)
 }
 
 func main() {
@@ -40,14 +41,8 @@ func main() {
 
 	flag.Parse()
 
-	todoStore, db := setUpStore()
-
-	if db != nil {
-		defer db.Close()
-	}
-
+	todoStore := setUpStore()
 	templatePath := "internal/web/views"
-
 	server, err := web.NewServer(todoStore, templatePath)
 
 	if err != nil {
