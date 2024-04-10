@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/jneurock/todo-go/internal/domain"
 
@@ -17,10 +18,14 @@ func NewTodoPostsgresStore(db *sql.DB, isAvailable bool) *TodoPostgresStore {
 	store := &TodoPostgresStore{db: db, isAvailable: true}
 
 	if err := db.Ping(); err != nil {
+		fmt.Println("Could not ping database")
+		fmt.Println(err)
 		store.isAvailable = false
 	}
 
 	if err := store.init(); err != nil {
+		fmt.Println("Could not initialize database")
+		fmt.Println(err)
 		store.isAvailable = false
 	}
 
@@ -89,7 +94,7 @@ func (s *TodoPostgresStore) Find(id string) (*domain.Todo, error) {
 }
 
 func (s *TodoPostgresStore) FindAll() ([]*domain.Todo, error) {
-	query := "SELECT * FROM todo"
+	query := "SELECT * FROM todo ORDER BY \"complete\" ASC, \"id\" DESC"
 	rows, err := s.db.Query(query)
 
 	if err != nil {

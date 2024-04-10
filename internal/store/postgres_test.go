@@ -76,7 +76,7 @@ func TestPostgresFindAll(t *testing.T) {
 
 	defer db.Close()
 
-	q := mock.ExpectQuery("SELECT \\* FROM todo")
+	q := mock.ExpectQuery("SELECT \\* FROM todo ORDER BY \"complete\" ASC, \"id\" DESC")
 	q.WillReturnRows(sqlmock.NewRows([]string{"id", "complete", "description"}))
 
 	if _, err := store.FindAll(); err != nil {
