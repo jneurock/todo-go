@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/jneurock/todo-go/internal/domain"
 	"github.com/jneurock/todo-go/internal/store"
@@ -56,8 +57,14 @@ func (s *Server) Start() {
 
 	mux.HandleFunc("/", s.createHandler(s.handleIndex))
 
-	fmt.Println("Server started on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	port := os.Getenv("TODO_WEB_PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+
+	fmt.Printf("Server started on http://localhost:%s\n", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), mux))
 }
 
 type Handler func(http.ResponseWriter, *http.Request) error
