@@ -110,7 +110,13 @@ func TestDeleteTodo(t *testing.T) {
 
 func TestUpdateTodo(t *testing.T) {
 	server := newTestServer(t, true)
-	err := server.store.Create("Update me")
+	err := server.store.Create("Do not update me")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = server.store.Create("Update me")
 
 	if err != nil {
 		t.Fatal(err)

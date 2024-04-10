@@ -1,4 +1,26 @@
 
+[Test500 - 1]
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Todos | Something Went Wrong</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="Something went wrong and the app is not working right now.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/css/main.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Something Went Wrong</h1>
+      <p>
+        The app isn&rsquo;t working right now. Please try again later.
+      </p>
+    </main>
+  </body>
+</html>
+
+---
+
 [TestNotFound - 1]
 <!DOCTYPE html>
 <html lang="en">
@@ -21,148 +43,6 @@
     </main>
   </body>
 </html>
-
----
-
-[TestNewTodo - 1]
-
-  <div id="todos">
-    <form
-      class="todo-form"
-      hx-post="/todo"
-      hx-swap="outerHTML"
-      hx-target="#todos"
-    >
-      <div class="todo-form--label">
-        <label for="description">Description</label>
-      </div>
-      <div class="todo-form--controls">
-        <div>
-          <input
-            class="todo-form--input"
-            name="description"
-            type="text"
-            autofocus
-            required
-          >
-          
-        </div>
-        <div>
-          <button class="todo-form--button" type="submit">Create</button>
-        </div>
-      </div>
-    </form>
-    
-      
-  <div id="todo-container-0" class="todo-container">
-    <form
-      class="todo"
-      hx-put="/todo/0"
-      hx-swap="outerHTML"
-      hx-target="#todo-container-0"
-      hx-trigger="change throttle:250"
-    >
-      <div class="todo--attrs">
-        <div>
-          <input
-            name="complete"
-            type="checkbox"
-            
-          />
-        </div>
-        <div class="todo--description ">
-          <input
-            name="description"
-            type="text"
-            value="Do chores"
-            required
-          >
-        </div>
-      </div>
-      <div class="todo--controls">
-        <button hx-delete="/todo/0" hx-target="#todos">
-          &times;
-        </button>
-      </div>
-    </form>
-    
-  </div>
-
-    
-  </div>
-
----
-
-[TestDeleteTodo - 1]
-
-  <div id="todos">
-    <form
-      class="todo-form"
-      hx-post="/todo"
-      hx-swap="outerHTML"
-      hx-target="#todos"
-    >
-      <div class="todo-form--label">
-        <label for="description">Description</label>
-      </div>
-      <div class="todo-form--controls">
-        <div>
-          <input
-            class="todo-form--input"
-            name="description"
-            type="text"
-            autofocus
-            required
-          >
-          
-        </div>
-        <div>
-          <button class="todo-form--button" type="submit">Create</button>
-        </div>
-      </div>
-    </form>
-    
-      <p>Add some todos!</p>
-    
-  </div>
-
----
-
-[TestUpdateTodo - 1]
-
-  <div id="todo-container-0" class="todo-container">
-    <form
-      class="todo"
-      hx-put="/todo/0"
-      hx-swap="outerHTML"
-      hx-target="#todo-container-0"
-      hx-trigger="change throttle:250"
-    >
-      <div class="todo--attrs">
-        <div>
-          <input
-            name="complete"
-            type="checkbox"
-            checked
-          />
-        </div>
-        <div class="todo--description todo--description__complete">
-          <input
-            name="description"
-            type="text"
-            value="Update me again"
-            required
-          >
-        </div>
-      </div>
-      <div class="todo--controls">
-        <button hx-delete="/todo/0" hx-target="#todos">
-          &times;
-        </button>
-      </div>
-    </form>
-    
-  </div>
 
 ---
 
@@ -259,12 +139,12 @@
     </form>
     
       
-  <div id="todo-container-1" class="todo-container">
+  <div class="todo-container">
     <form
       class="todo"
       hx-put="/todo/1"
       hx-swap="outerHTML"
-      hx-target="#todo-container-1"
+      hx-target="#todos"
       hx-trigger="change throttle:250"
     >
       <div class="todo--attrs">
@@ -295,12 +175,12 @@
 
     
       
-  <div id="todo-container-0" class="todo-container">
+  <div class="todo-container">
     <form
       class="todo"
       hx-put="/todo/0"
       hx-swap="outerHTML"
-      hx-target="#todo-container-0"
+      hx-target="#todos"
       hx-trigger="change throttle:250"
     >
       <div class="todo--attrs">
@@ -338,24 +218,211 @@
 
 ---
 
-[Test500 - 1]
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Todos | Something Went Wrong</title>
-    <meta charset="utf-8" />
-    <meta name="description" content="Something went wrong and the app is not working right now.">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/static/css/main.css" />
-  </head>
-  <body>
-    <main class="container">
-      <h1>Something Went Wrong</h1>
-      <p>
-        The app isn&rsquo;t working right now. Please try again later.
-      </p>
-    </main>
-  </body>
-</html>
+[TestNewTodo - 1]
+
+  <div id="todos">
+    <form
+      class="todo-form"
+      hx-post="/todo"
+      hx-swap="outerHTML"
+      hx-target="#todos"
+    >
+      <div class="todo-form--label">
+        <label for="description">Description</label>
+      </div>
+      <div class="todo-form--controls">
+        <div>
+          <input
+            class="todo-form--input"
+            name="description"
+            type="text"
+            autofocus
+            required
+          >
+          
+        </div>
+        <div>
+          <button class="todo-form--button" type="submit">Create</button>
+        </div>
+      </div>
+    </form>
+    
+      
+  <div class="todo-container">
+    <form
+      class="todo"
+      hx-put="/todo/0"
+      hx-swap="outerHTML"
+      hx-target="#todos"
+      hx-trigger="change throttle:250"
+    >
+      <div class="todo--attrs">
+        <div>
+          <input
+            name="complete"
+            type="checkbox"
+            
+          />
+        </div>
+        <div class="todo--description ">
+          <input
+            name="description"
+            type="text"
+            value="Do chores"
+            required
+          >
+        </div>
+      </div>
+      <div class="todo--controls">
+        <button hx-delete="/todo/0" hx-target="#todos">
+          &times;
+        </button>
+      </div>
+    </form>
+    
+  </div>
+
+    
+  </div>
+
+---
+
+[TestDeleteTodo - 1]
+
+  <div id="todos">
+    <form
+      class="todo-form"
+      hx-post="/todo"
+      hx-swap="outerHTML"
+      hx-target="#todos"
+    >
+      <div class="todo-form--label">
+        <label for="description">Description</label>
+      </div>
+      <div class="todo-form--controls">
+        <div>
+          <input
+            class="todo-form--input"
+            name="description"
+            type="text"
+            autofocus
+            required
+          >
+          
+        </div>
+        <div>
+          <button class="todo-form--button" type="submit">Create</button>
+        </div>
+      </div>
+    </form>
+    
+      <p>Add some todos!</p>
+    
+  </div>
+
+---
+
+[TestUpdateTodo - 1]
+
+  <div id="todos">
+    <form
+      class="todo-form"
+      hx-post="/todo"
+      hx-swap="outerHTML"
+      hx-target="#todos"
+    >
+      <div class="todo-form--label">
+        <label for="description">Description</label>
+      </div>
+      <div class="todo-form--controls">
+        <div>
+          <input
+            class="todo-form--input"
+            name="description"
+            type="text"
+            autofocus
+            required
+          >
+          
+        </div>
+        <div>
+          <button class="todo-form--button" type="submit">Create</button>
+        </div>
+      </div>
+    </form>
+    
+      
+  <div class="todo-container">
+    <form
+      class="todo"
+      hx-put="/todo/0"
+      hx-swap="outerHTML"
+      hx-target="#todos"
+      hx-trigger="change throttle:250"
+    >
+      <div class="todo--attrs">
+        <div>
+          <input
+            name="complete"
+            type="checkbox"
+            
+          />
+        </div>
+        <div class="todo--description ">
+          <input
+            name="description"
+            type="text"
+            value="Do not update me"
+            required
+          >
+        </div>
+      </div>
+      <div class="todo--controls">
+        <button hx-delete="/todo/0" hx-target="#todos">
+          &times;
+        </button>
+      </div>
+    </form>
+    
+  </div>
+
+    
+      
+  <div class="todo-container">
+    <form
+      class="todo"
+      hx-put="/todo/1"
+      hx-swap="outerHTML"
+      hx-target="#todos"
+      hx-trigger="change throttle:250"
+    >
+      <div class="todo--attrs">
+        <div>
+          <input
+            name="complete"
+            type="checkbox"
+            checked
+          />
+        </div>
+        <div class="todo--description todo--description__complete">
+          <input
+            name="description"
+            type="text"
+            value="Update me again"
+            required
+          >
+        </div>
+      </div>
+      <div class="todo--controls">
+        <button hx-delete="/todo/1" hx-target="#todos">
+          &times;
+        </button>
+      </div>
+    </form>
+    
+  </div>
+
+    
+  </div>
 
 ---

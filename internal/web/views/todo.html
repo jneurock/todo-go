@@ -1,10 +1,10 @@
 {{block "todo" .}}
-  <div id="todo-container-{{.Todo.ID}}" class="todo-container">
+  <div class="todo-container">
     <form
       class="todo"
       hx-put="/todo/{{.Todo.ID}}"
       hx-swap="outerHTML"
-      hx-target="#todo-container-{{.Todo.ID}}"
+      hx-target="#todos"
       hx-trigger="change throttle:250"
     >
       <div class="todo--attrs">

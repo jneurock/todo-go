@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/jneurock/todo-go/internal/domain"
 	"github.com/jneurock/todo-go/internal/store"
@@ -168,11 +169,27 @@ func (s *Server) handleUpdateTodo(w http.ResponseWriter, r *http.Request) error 
 		err = s.store.Update(id, description, complete)
 	}
 
-	todo, errFind := s.store.Find(id)
+	todos, errFindAll := s.store.FindAll()
 
-	if errFind != nil {
-		return errFind
+	if errFindAll != nil {
+		return errFindAll
 	}
 
-	return s.templates.ExecuteTemplate(w, "todo", newUITodo(todo, err))
+	uiTodos := newUITodoSlice(todos)
+
+	for _, t := range uiTodos {
+		intId, _ := strconv.Atoi(id)
+
+		if t.Todo.ID == int64(intId) {
+			t.Error = err
+		}
+	}
+
+	return s.templates.ExecuteTemplate(w, "todos", &struct {
+		Error error
+		Todos []*UITodo
+	}{
+		Error: nil,
+		Todos: uiTodos,
+	})
 }

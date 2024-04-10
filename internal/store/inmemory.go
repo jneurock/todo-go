@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"slices"
 	"strconv"
 
 	"github.com/jneurock/todo-go/internal/domain"
@@ -83,6 +84,17 @@ func (s *TodoInMemoryStore) FindAll() ([]*domain.Todo, error) {
 		todos = append(todos, todo.Value)
 		todo = todo.Next
 	}
+
+	slices.SortFunc(todos, func(a, b *domain.Todo) int {
+		switch {
+		case !a.Complete && b.Complete:
+			return -1
+		case a.Complete && b.Complete && a.ID > b.ID:
+			return -1
+		default:
+			return 1
+		}
+	})
 
 	return todos, nil
 }
