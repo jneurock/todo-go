@@ -25,7 +25,18 @@ func setUpStore() store.TodoStore {
 		return store.NewTodoInMemoryStore()
 	}
 
-	connStr := "user=todouser dbname=todo password=todopassword sslmode=disable"
+	name := os.Getenv("TODO_DB_NAME")
+	port := os.Getenv("TODO_DB_PORT")
+	pw := os.Getenv("TODO_DB_PW")
+	user := os.Getenv("TODO_DB_USER")
+
+	connStr := fmt.Sprintf(
+		"dbname=%s port=%s user=%s password=%s sslmode=disable",
+		name,
+		port,
+		user,
+		pw,
+	)
 
 	if host := os.Getenv("TODO_DB_HOST"); host != "" {
 		connStr = fmt.Sprintf("host=%s %s", host, connStr)

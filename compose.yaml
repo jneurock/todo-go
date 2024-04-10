@@ -1,18 +1,24 @@
 services:
   web:
     build: .
-    command: ${TODO_ARGUMENTS:-""}
+    command: ${TODO_ARGS:-""}
     depends_on:
       - db
     environment:
       TODO_DB_HOST: db
+      TODO_DB_NAME: ${TODO_DB_NAME:-todo}
+      TODO_DB_PORT: ${TODO_DB_PORT:-5432}
+      TODO_DB_PW: ${TODO_DB_PW:-todopassword}
+      TODO_DB_USER: ${TODO_DB_USER:-todouser}
+      TODO_WEB_PORT: ${TODO_WEB_PORT:-8080}
     ports:
-      - ${TODO_WEB_PORT:-8080}:${TODO_WEB_PORT:-8080}
+      - "${TODO_WEB_PORT:-8080}:${TODO_WEB_PORT:-8080}"
   db:
     image: "postgres:16"
     environment:
-      POSTGRES_DB: todo
-      POSTGRES_PASSWORD: todopassword
-      POSTGRES_USER: todouser
+      PGPORT: ${TODO_DB_PORT:-5432}
+      POSTGRES_DB: ${TODO_DB_NAME:-todo}
+      POSTGRES_PASSWORD: ${TODO_DB_PW:-todopassword}
+      POSTGRES_USER: ${TODO_DB_USER:-todouser}
     ports:
-      - "${TODO_DB_PORT:-5432}:5432"
+      - "${TODO_DB_PORT:-5432}:${TODO_DB_PORT:-5432}"
