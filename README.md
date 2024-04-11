@@ -2,6 +2,8 @@
 
 A small TODO app for practicing Go.
 
+![A screenshot of the TODO app with a few items](screenshot.png)
+
 Feel free to follow along while I make progress. There will be plenty of
 mistakes.
 
